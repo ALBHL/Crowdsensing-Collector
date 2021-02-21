@@ -32,10 +32,10 @@ class OutboxActivity : AppCompatActivity() {
         supportActionBar?.title = "Outbox"
 
         //TODO - inferencer
-//        button_inferpic.setOnClickListener{
-//            val intent = Intent(this, InferencerActivity::class.java)
-//            startActivity(intent)
-//        }
+        button_inferpic.setOnClickListener{
+            val intent = Intent(this, InferencerActivity::class.java)
+            startActivity(intent)
+        }
 
         val context = this
         val db = DataBaseHandler(context)
