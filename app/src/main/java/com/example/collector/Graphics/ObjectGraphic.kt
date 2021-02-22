@@ -1,4 +1,4 @@
-package com.example.collector
+package com.example.collector.Graphics
 
 import android.graphics.Canvas
 import android.graphics.Color
@@ -28,11 +28,13 @@ class ObjectGraphic constructor(
         for (i in 0 until numColors) {
             textPaints[i] = Paint()
             textPaints[i].color = COLORS[i][0]
-            textPaints[i].textSize = TEXT_SIZE
+            textPaints[i].textSize =
+                TEXT_SIZE
             boxPaints[i] = Paint()
             boxPaints[i].color = COLORS[i][1]
             boxPaints[i].style = Paint.Style.STROKE
-            boxPaints[i].strokeWidth = STROKE_WIDTH
+            boxPaints[i].strokeWidth =
+                STROKE_WIDTH
             labelPaints[i] = Paint()
             labelPaints[i].color = COLORS[i][1]
             labelPaints[i].style = Paint.Style.FILL

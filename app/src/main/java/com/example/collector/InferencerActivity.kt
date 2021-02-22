@@ -2,36 +2,38 @@ package com.example.collector
 
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import com.example.collector.Graphics.ObjectGraphic
 import com.example.collector.Helper.GraphicOverlay
-import com.example.collector.Helper.RectOverlay
-import com.google.android.gms.tasks.OnSuccessListener
+import com.example.collector.TFLiteCustom.ImageSegmentationModelExecutor
+import com.example.collector.TFLiteCustom.MLExecutionViewModel
+import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions
+import com.google.firebase.ml.common.modeldownload.FirebaseModelManager
+import com.google.firebase.ml.custom.FirebaseCustomRemoteModel
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.demo.kotlin.facedetector.FaceGraphic
 import com.google.mlkit.vision.demo.kotlin.labeldetector.LabelGraphic
 import com.google.mlkit.vision.demo.kotlin.posedetector.PoseGraphic
 import com.google.mlkit.vision.demo.kotlin.textdetector.TextGraphic
-import com.google.mlkit.vision.objects.DetectedObject
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
-import com.google.mlkit.vision.objects.defaults.PredefinedCategory
 import com.google.mlkit.vision.face.*
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.accurate.AccuratePoseDetectorOptions
-import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
-import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.TextRecognizer
-import com.google.mlkit.vision.label.ImageLabeler
 import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 import kotlinx.android.synthetic.main.activity_inferencer.*
+import kotlinx.coroutines.asCoroutineDispatcher
+import org.tensorflow.lite.Interpreter
+import java.util.concurrent.Executors
 import kotlin.math.max
 
 
@@ -42,7 +44,7 @@ class InferencerActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_inferencer)
         var chooseMdl : Spinner = findViewById(R.id.spinner_choosemdl)
-        val models = arrayOf("Object Detection", "Face Detection", "Pose Detection", "Image Labeling", "Text Recognition")
+        val models = arrayOf("Object Detection", "Face Detection", "Pose Detection", "Image Labeling", "Text Recognition", "customSeg")
         chooseMdl.adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, models)
 
 
@@ -83,13 +85,16 @@ class InferencerActivity: AppCompatActivity() {
                     position: Int,
                     id: Long
                 ) {
+                    // reset view
                     graphicOverlay!!.clear()
+                    imageViewshow!!.setImageBitmap(resizedBitmap)
                     when (position) {
                         0 -> detectObjectAndTrack(image)
                         1 -> detectFaces(image)
                         2 -> detectFPose(image)
                         3 -> labelImage(image)
                         4 -> recognizeText(image)
+                        5 -> loadCustomModel(resizedBitmap)
                     }
                 }
             }
@@ -119,7 +124,12 @@ class InferencerActivity: AppCompatActivity() {
             objectDetector.process(image)
                 .addOnSuccessListener { detectedObjects ->
                     for (detectedObject in detectedObjects) {
-                        graphicOverlay?.add(ObjectGraphic(graphicOverlay!!, detectedObject))
+                        graphicOverlay?.add(
+                            ObjectGraphic(
+                                graphicOverlay!!,
+                                detectedObject
+                            )
+                        )
                         count += 1
                         for (label in detectedObject.labels) {
                             count += 100
@@ -269,5 +279,71 @@ class InferencerActivity: AppCompatActivity() {
                     Toast.makeText(this, "cannot inferrence", Toast.LENGTH_SHORT).show()
                 }
         }
+    }
+
+
+    private fun loadCustomModel(bmp : Bitmap) {
+        lateinit var viewModel: MLExecutionViewModel
+        var lastSavedFile = ""
+        val inferenceThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+        viewModel = ViewModelProvider.AndroidViewModelFactory(application).create(MLExecutionViewModel::class.java)
+        viewModel.resultingBitmap.observe(
+            this,
+            Observer { resultImage ->
+                if (resultImage != null) {
+                    imageViewshow!!.setImageBitmap(resultImage.bitmapResult)
+                }
+            }
+        )
+
+        // create model class
+        var imageSegmentationModel = ImageSegmentationModelExecutor(this, false)
+
+        button_inf.setOnClickListener {
+            viewModel.onApplyModel(bmp, imageSegmentationModel, inferenceThread)
+
+        }
+//        var interpreter : Interpreter
+//        val imageSize = 257
+//        val NUM_CLASSES = 21
+//        val IMAGE_MEAN = 127.5f
+//        val IMAGE_STD = 127.5f
+//        val segmentColors = IntArray(NUM_CLASSES)
+//        val labelsArrays = arrayOf(
+//            "background", "aeroplane", "bicycle", "bird", "boat", "bottle", "bus",
+//            "car", "cat", "chair", "cow", "dining table", "dog", "horse", "motorbike",
+//            "person", "potted plant", "sheep", "sofa", "train", "tv"
+//        )
+//        val scaledBitmap =
+//            ImageUtils.scaleBitmapAndKeepRatio(
+//                bmp,
+//                imageSize, imageSize
+//            )
+//        val contentArray =
+//            ImageUtils.bitmapToByteBuffer(
+//                scaledBitmap,
+//                imageSize,
+//                imageSize,
+//                IMAGE_MEAN,
+//                IMAGE_STD
+//            )
+//        val remoteModel = FirebaseCustomRemoteModel.Builder("Segmenter").build()
+//        val conditions = FirebaseModelDownloadConditions.Builder()
+//            .requireWifi()
+//            .build()
+//        FirebaseModelManager.getInstance().download(remoteModel, conditions)
+//            .addOnCompleteListener {
+//                // Download complete. Depending on your app, you could enable the ML
+//                // feature, or switch from the local model to the remote model, etc.
+//                Toast.makeText(this, "Successfully downloaded", Toast.LENGTH_SHORT).show()
+//            }
+//        FirebaseModelManager.getInstance().getLatestModelFile(remoteModel)
+//            .addOnCompleteListener { task ->
+//                val modelFile = task.result
+//                if (modelFile != null) {
+//                    interpreter = Interpreter(modelFile)
+//                }
+//            }
+
     }
 }
