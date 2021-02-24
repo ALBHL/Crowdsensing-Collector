@@ -2,6 +2,8 @@ package com.example.collector
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.database.Cursor
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
@@ -16,6 +18,19 @@ import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_inbox.*
 
 class InboxActivity : AppCompatActivity() {
+    val PROVIDER_NAME = "com.example.validator/AcronymProvider"
+    val URL = "content://$PROVIDER_NAME/Inbox"
+    val CONTENT_URI = Uri.parse(URL)
+
+    val TABLEIN_NAME="Inbox"
+    val COL_NAME = "name"
+    val COL_AGE = "age"
+    val COL_ID = "id"
+    val COL_URL = "imageurl"
+    val COL_PROFILE = "profileimg"
+    val COL_STAGE = "current_stage"
+    val COL_IMAGE_BIT = "picturetaken"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_inbox)
@@ -43,9 +58,15 @@ class InboxActivity : AppCompatActivity() {
 
         val context = this
         val db = DataBaseHandler(context)
-        val data = db.readData()
+//        val data = db.readData()
 
-        fetchUsers(data)
+        val result = contentResolver.query(CONTENT_URI,
+            arrayOf(COL_ID, COL_NAME, COL_STAGE, COL_AGE, COL_PROFILE, COL_URL, COL_IMAGE_BIT),
+            null, null, null)
+        val data = result?.let { readInData(it) }
+        if (data != null) {
+            fetchUsers(data)
+        }
 
     }
 
@@ -53,6 +74,21 @@ class InboxActivity : AppCompatActivity() {
         val USER_KEY = "USER_KEY"
         val ROW_ID = "ROW_ID"
         val ROW_NAME = "ROW_NAME"
+    }
+
+    private fun readInData(result: Cursor) : MutableList<User> {
+        val list : MutableList<User> = ArrayList()
+        while (result.moveToNext()) {
+            val user = User()
+            user.id = result.getString(0).toInt()
+            user.name = result.getString(1)
+            user.age = result.getString(3).toInt()
+            user.imageurl = result.getString(5)
+            user.cur_stage = result.getString(2)
+            user.profileurl = result.getString(4)
+            list.add(user)
+        }
+        return list
     }
 
     private fun fetchUsers(data: MutableList<User>) {

@@ -1,11 +1,17 @@
 package com.example.collector
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+
 import androidx.recyclerview.widget.RecyclerView
 import com.example.collector.CustomViewHolder
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.activity_collector.*
 import kotlinx.android.synthetic.main.images_row.view.*
 
 class ValidateImageAdapter(val images: String): RecyclerView.Adapter<CustomViewHolder>() {
@@ -30,7 +36,16 @@ class ValidateImageAdapter(val images: String): RecyclerView.Adapter<CustomViewH
         val imageURL = image_urls.get(position)
 
         holder.view.textViewImageTitle.text = videoTitle
-        Picasso.get().load(imageURL).into(holder.view.imageViewRow)
+//        Picasso.get().load(imageURL).into(holder.view.imageViewRow)
+
+//        holder.view.btn_inbox_takepic.setOnClickListener{
+//            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+//            try {
+//                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+//            } catch (e: ActivityNotFoundException) {
+//                Toast.makeText(this, "cannot open cam", Toast.LENGTH_SHORT).show()
+//            }
+//        }
 
 //        holder.view.checkImage.setOnCheckedChangeListener() {
 //            val checked: Boolean = holder.view.checkImage.isChecked

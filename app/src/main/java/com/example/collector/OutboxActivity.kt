@@ -58,7 +58,7 @@ class OutboxActivity : AppCompatActivity() {
         }
         adapter.setOnItemClickListener { item, view ->
             val userItem = item as UserItem
-            val intent = Intent(view.context, ShowImageActivity::class.java)
+            val intent = Intent(view.context, InferencerActivity::class.java)
             intent.putExtra(USER_KEY, userItem.user.imageurl)
             startActivity(intent)
         }

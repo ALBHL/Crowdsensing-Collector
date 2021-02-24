@@ -23,12 +23,12 @@ class ValidateImageActivity : AppCompatActivity() {
         val db = DataBaseHandler(context)
         val data = db.readData()
 
-        textview_metadata.text = ""
-        textview_metadata.text = "Inbox\n"
-        for (i in 0 until data.size) {
-            textview_metadata.append(data[i].id.toString() + " " + data[i].name + " " + data[i].age + data[i].imageurl +
-                    "STAGE: " + data[i].cur_stage + "\n")
-        }
+//        textview_metadata.text = ""
+//        textview_metadata.text = "Inbox\n"
+//        for (i in 0 until data.size) {
+//            textview_metadata.append(data[i].id.toString() + " " + data[i].name + " " + data[i].age + data[i].imageurl +
+//                    "STAGE: " + data[i].cur_stage + "\n")
+//        }
 
         recyclerViewContents.layoutManager = LinearLayoutManager(this)
         recyclerViewContents.adapter = images?.let { ValidateImageAdapter(it) }
