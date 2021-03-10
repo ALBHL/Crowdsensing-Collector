@@ -46,6 +46,7 @@ class OutboxActivity : AppCompatActivity() {
 
     companion object {
         val USER_KEY = "USER_KEY"
+        val USER_ID = "USER_ID"
     }
 
 
@@ -58,8 +59,8 @@ class OutboxActivity : AppCompatActivity() {
         }
         adapter.setOnItemClickListener { item, view ->
             val userItem = item as UserItem
-            val intent = Intent(view.context, ShowImageActivity::class.java)
-            intent.putExtra(USER_KEY, userItem.user.imageurl)
+            val intent = Intent(view.context, ConfirmSendOutActivity::class.java)
+            intent.putExtra(USER_ID, userItem.user.id.toString())
             startActivity(intent)
         }
         recycleview_outbox.adapter = adapter

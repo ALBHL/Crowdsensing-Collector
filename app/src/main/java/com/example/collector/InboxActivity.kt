@@ -64,7 +64,7 @@ class InboxActivity : AppCompatActivity() {
         }
         adapter.setOnItemClickListener { item, view ->
             val userItem = item as UserItem
-            val intent = Intent(view.context, ValidateImageActivity::class.java)
+            val intent = Intent(view.context, CollectorActivity::class.java)
             intent.putExtra(USER_KEY, userItem.user.imageurl)
             intent.putExtra(ROW_ID, userItem.user.id.toString())
             intent.putExtra(ROW_NAME, userItem.user.name)
