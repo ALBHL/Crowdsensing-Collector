@@ -28,6 +28,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:name=".AcronymProvider"
+            android:authorities="com.example.collector"
+            android:exported="true"
+            android:multiprocess="true"
+            android:grantUriPermissions="true">
+        </provider>
+
     </application>
 
 </manifest>
