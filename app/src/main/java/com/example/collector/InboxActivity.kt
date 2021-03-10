@@ -35,10 +35,10 @@ class InboxActivity : AppCompatActivity() {
 //            startActivity(intent)
 //        }
 
-//        button_takepic.setOnClickListener{
-//            val intent = Intent(this, CollectorActivity::class.java)
-//            startActivity(intent)
-//        }
+        button_takepic.setOnClickListener{
+            val intent = Intent(this, CollectorActivity::class.java)
+            startActivity(intent)
+        }
 
 
         val context = this

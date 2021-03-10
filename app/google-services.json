@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "211437354287",
+    "project_id": "crowdsensing-collector-abf21",
+    "storage_bucket": "crowdsensing-collector-abf21.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:211437354287:android:d93d26529e5efa72b2b5da",
+        "android_client_info": {
+          "package_name": "com.example.collector"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "211437354287-tcbe19fai601qnrudaif3ft5h5npok2d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAk3x0Dr5JNmz_xy4sGyfEF2be6wN1j5UU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "211437354287-tcbe19fai601qnrudaif3ft5h5npok2d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
