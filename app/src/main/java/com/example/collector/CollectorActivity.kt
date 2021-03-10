@@ -39,7 +39,7 @@ class CollectorActivity : AppCompatActivity() {
 
             if (cur_id != null) {
                 db.updateRowImg(cur_id, img)
-                db.updateRow(cur_id, "validated")
+                db.updateRow(cur_id, "ready to be validated")
             }
 
             val intent = Intent(this, InferencerActivity::class.java)

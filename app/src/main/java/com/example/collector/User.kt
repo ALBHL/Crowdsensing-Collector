@@ -7,7 +7,7 @@ class User {
     var imageurl: String = ""
     var cur_stage: String = ""
     // cur_stage indicate the current stage of the sensing stage:
-    //  we have: 1. ready to be collected, 2. collected 3. inferencer 3. ready to be validated
+    //  we have: 1.to collect, 2. collected 3. inferenced 3. ready to be validated
     // 4. deleted 5. validated
 //    var collect: String = ""
 //    var validate: String = ""
@@ -17,7 +17,7 @@ class User {
         this.name = name
         this.age = age
         this.imageurl = imageurl
-        this.cur_stage = "ready to be validated"
+        this.cur_stage = "to collect"
 //        this.collect = "false"
 //        this.validate = "false"
         val profiles = listOf<String>("https://i.pinimg.com/originals/52/44/95/524495ccf8c05ab40f5905d852a358c2.png",

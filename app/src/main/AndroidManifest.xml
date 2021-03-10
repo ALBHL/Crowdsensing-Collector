@@ -34,9 +34,14 @@
             android:authorities="com.example.collector"
             android:exported="true"
             android:multiprocess="true"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true"
+            android:readPermission="com.example.validator.READ.PERMISSION"
+            android:writePermission="com.example.validator.WRITE.PERMISSION">
         </provider>
 
     </application>
+
+    <uses-permission android:name="com.example.validator.READ.PERMISSION"/>
+    <uses-permission android:name="com.example.validator.WRITE.PERMISSION"/>
 
 </manifest>

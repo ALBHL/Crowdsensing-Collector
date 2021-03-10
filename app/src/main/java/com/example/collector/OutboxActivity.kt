@@ -53,7 +53,7 @@ class OutboxActivity : AppCompatActivity() {
     private fun fetchUsers(data: MutableList<User>) {
         val adapter = GroupAdapter<ViewHolder>()
         for (i in 0 until data.size) {
-            if (data[i].cur_stage == "validated") {
+            if (data[i].cur_stage == "ready to be validated") {
                 adapter.add(UserItem(data[i]))
             }
         }

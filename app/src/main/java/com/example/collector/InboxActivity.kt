@@ -58,7 +58,7 @@ class InboxActivity : AppCompatActivity() {
     private fun fetchUsers(data: MutableList<User>) {
         val adapter = GroupAdapter<ViewHolder>()
         for (i in 0 until data.size) {
-            if (data[i].cur_stage == "ready to be validated") {
+            if (data[i].cur_stage == "to collect") {
                 adapter.add(UserItem(data[i]))
             }
         }
