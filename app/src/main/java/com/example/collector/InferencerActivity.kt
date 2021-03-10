@@ -3,10 +3,7 @@ package com.example.collector
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -39,6 +36,8 @@ import kotlin.math.max
 
 class InferencerActivity: AppCompatActivity() {
     private var graphicOverlay: GraphicOverlay? = null
+    // indicates whether the inference is made or not
+    var doneInf = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,6 +86,12 @@ class InferencerActivity: AppCompatActivity() {
                 ) {
                     // reset view
                     graphicOverlay!!.clear()
+                    // clear pop-up text
+                    var logText: TextView = findViewById(R.id.log_view)  // textview in the pull-up list
+                    logText.text = null
+                    textView_count.text = "Count: 0"
+                    // set doneInf to false
+                    doneInf = false
                     imageViewshow!!.setImageBitmap(resizedBitmap)
                     when (position) {
                         0 -> detectObjectAndTrack(image)
@@ -116,29 +121,35 @@ class InferencerActivity: AppCompatActivity() {
             .build()
 
         val objectDetector = ObjectDetection.getClient(options)
+        var logText: TextView = findViewById(R.id.log_view)  // textview in the pull-up list
         var count = 0
         var ids = 0
         var lab = ""
 
         button_inf.setOnClickListener {
-            objectDetector.process(image)
-                .addOnSuccessListener { detectedObjects ->
-                    for (detectedObject in detectedObjects) {
-                        graphicOverlay?.add(
-                            ObjectGraphic(
-                                graphicOverlay!!,
-                                detectedObject
+            if (!doneInf) {
+                doneInf = true
+                objectDetector.process(image)
+                    .addOnSuccessListener { detectedObjects ->
+                        for (detectedObject in detectedObjects) {
+                            count += 1
+                            graphicOverlay?.add(
+                                ObjectGraphic(
+                                    graphicOverlay!!,
+                                    detectedObject
+                                )
                             )
-                        )
-                        count += 1
-                        for (label in detectedObject.labels) {
-                            count += 100
-                            val text = label.text
-                            lab += text
+                            logText.append("ObjectId: $count Labels:")
+                            for (label in detectedObject.labels) {
+                                val text = label.text
+                                lab += text
+                                logText.append("$text, ")
+                            }
+                            logText.append("\n \n")
                         }
+                        textView_count.text = "Count: " + count.toString()
+                        logText.append("Number of Object: " + count.toString())
                     }
-                    textView_count.text = "Count: " + count.toString() + lab
-                }
 //                .addOnSuccessListener(object : OnSuccessListener<List<DetectedObject>> {
 //                    override fun onSuccess(results: List<DetectedObject>) {
 //                        for (result in results) {
@@ -153,9 +164,10 @@ class InferencerActivity: AppCompatActivity() {
 //                        textView_count.text = "Count: " + ids.toString() + count.toString()
 //                    }
 //                })
-                .addOnFailureListener { e ->
-                    Toast.makeText(this, "cannot inferrence", Toast.LENGTH_SHORT).show()
-                }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this, "cannot inferrence", Toast.LENGTH_SHORT).show()
+                    }
+            }
         }
     }
 
@@ -169,17 +181,28 @@ class InferencerActivity: AppCompatActivity() {
             .build()
 
         val detector = FaceDetection.getClient();
+        var count = 0
+        var logText: TextView = findViewById(R.id.log_view)  // textview in the pull-up list
 
         button_inf.setOnClickListener {
-            val result = detector.process(image)
-                .addOnSuccessListener { faces ->
-                    // Task completed successfully
-                    for (face in faces) {
-                        val bounds = face.boundingBox
-                        val rotY = face.headEulerAngleY // Head is rotated to the right rotY degrees
-                        val rotZ = face.headEulerAngleZ // Head is tilted sideways rotZ degrees
+            if(!doneInf) {
+                doneInf = true
+                val result = detector.process(image)
+                    .addOnSuccessListener { faces ->
+                        // Task completed successfully
+                        for (face in faces) {
+                            count += 1
+                            val bounds = face.boundingBox
+                            val trackId = face.trackingId
+                            val rotY = face.headEulerAngleY // Head is rotated to the right rotY degrees
+                            val rotZ = face.headEulerAngleZ // Head is tilted sideways rotZ degrees
 //                        graphicOverlay?.add(RectOverlay(graphicOverlay, face.boundingBox))
-                        graphicOverlay?.add(FaceGraphic(graphicOverlay!!, face))
+                            logText.append("FaceId: " + count.toString() + "\n"
+                                    + " top: " + bounds.top.toString()
+                                    + " bottom: " + bounds.bottom.toString()
+                                    + " left: " +  bounds.left.toString()
+                                    + " right: " +  bounds.right.toString() + "\n \n")
+                            graphicOverlay?.add(FaceGraphic(graphicOverlay!!, face))
 
 //                        // If landmark detection was enabled (mouth, ears, eyes, cheeks, and
 //                        // nose available):
@@ -200,12 +223,15 @@ class InferencerActivity: AppCompatActivity() {
 //                        if (face.trackingId != null) {
 //                            val id = face.trackingId
 //                        }
+                        }
+                        logText.append("Count: " + count.toString())
+                        textView_count.text = "Count: " + count.toString()
                     }
-                }
-                .addOnFailureListener { e ->
-                    // Task failed with an exception
-                    Toast.makeText(this, "cannot inferrence", Toast.LENGTH_SHORT).show()
-                }
+                    .addOnFailureListener { e ->
+                        // Task failed with an exception
+                        Toast.makeText(this, "cannot inferrence", Toast.LENGTH_SHORT).show()
+                    }
+            }
         }
     }
 
@@ -223,31 +249,41 @@ class InferencerActivity: AppCompatActivity() {
         val poseDetector = PoseDetection.getClient(options)
 
         button_inf.setOnClickListener {
-            val result = poseDetector.process(image)
-                .addOnSuccessListener { pose ->
-                    // Task completed successfully
-                    graphicOverlay?.add(PoseGraphic(graphicOverlay!!, pose, true, true, true))
-                }
-                .addOnFailureListener { e ->
-                    // Task failed with an exception
-                    Toast.makeText(this, "cannot inferrence", Toast.LENGTH_SHORT).show()
-                }
+            if (!doneInf) {
+                doneInf = true
+                val result = poseDetector.process(image)
+                    .addOnSuccessListener { pose ->
+                        // Task completed successfully
+                        graphicOverlay?.add(PoseGraphic(graphicOverlay!!, pose, true, true, true))
+                    }
+                    .addOnFailureListener { e ->
+                        // Task failed with an exception
+                        Toast.makeText(this, "cannot inferrence", Toast.LENGTH_SHORT).show()
+                    }
+            }
         }
     }
 
     private fun labelImage(image : InputImage) {
         val labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
+        var logText: TextView = findViewById(R.id.log_view)  // textview in the pull-up list
 
         button_inf.setOnClickListener {
-            labeler.process(image)
-                .addOnSuccessListener { labels ->
-                    // Task completed successfully
-                    graphicOverlay?.add(LabelGraphic(graphicOverlay!!, labels))
-                }
-                .addOnFailureListener { e ->
-                    // Task failed with an exception
-                    Toast.makeText(this, "cannot inferrence", Toast.LENGTH_SHORT).show()
-                }
+            if(!doneInf) {
+                doneInf = true
+                labeler.process(image)
+                    .addOnSuccessListener { labels ->
+                        // Task completed successfully
+                        for (label in labels) {
+                            logText.append("Label: ${label.text}, confidence: ${label.confidence}, index: ${label.index}. \n")
+                        }
+                        graphicOverlay?.add(LabelGraphic(graphicOverlay!!, labels))
+                    }
+                    .addOnFailureListener { e ->
+                        // Task failed with an exception
+                        Toast.makeText(this, "cannot inferrence", Toast.LENGTH_SHORT).show()
+                    }
+            }
         }
     }
 
@@ -256,10 +292,12 @@ class InferencerActivity: AppCompatActivity() {
         val recognizer = TextRecognition.getClient()
 
         button_inf.setOnClickListener {
-            val result = recognizer.process(image)
-                .addOnSuccessListener { visionText ->
-                    // Task completed successfully
-                    graphicOverlay?.add(TextGraphic(graphicOverlay, visionText))
+            if(!doneInf) {
+                doneInf = true
+                val result = recognizer.process(image)
+                    .addOnSuccessListener { visionText ->
+                        // Task completed successfully
+                        graphicOverlay?.add(TextGraphic(graphicOverlay, visionText))
 //                    for (block in visionText.textBlocks) {
 //                        val boundingBox = block.boundingBox
 //                        val cornerPoints = block.cornerPoints
@@ -273,11 +311,12 @@ class InferencerActivity: AppCompatActivity() {
 //                            }
 //                        }
 //                    }
-                }
-                .addOnFailureListener { e ->
-                    // Task failed with an exception
-                    Toast.makeText(this, "cannot inferrence", Toast.LENGTH_SHORT).show()
-                }
+                    }
+                    .addOnFailureListener { e ->
+                        // Task failed with an exception
+                        Toast.makeText(this, "cannot inferrence", Toast.LENGTH_SHORT).show()
+                    }
+            }
         }
     }
 
@@ -291,7 +330,10 @@ class InferencerActivity: AppCompatActivity() {
             this,
             Observer { resultImage ->
                 if (resultImage != null) {
+                    //update UI with the result
                     imageViewshow!!.setImageBitmap(resultImage.bitmapResult)
+                    var logText: TextView = findViewById(R.id.log_view)  // textview in the pull-up list
+                    logText.text = resultImage.executionLog
                 }
             }
         )
@@ -300,8 +342,10 @@ class InferencerActivity: AppCompatActivity() {
         var imageSegmentationModel = ImageSegmentationModelExecutor(this, false)
 
         button_inf.setOnClickListener {
-            viewModel.onApplyModel(bmp, imageSegmentationModel, inferenceThread)
-
+            if(!doneInf) {
+                doneInf = true
+                viewModel.onApplyModel(bmp, imageSegmentationModel, inferenceThread)
+            }
         }
 //        var interpreter : Interpreter
 //        val imageSize = 257
