@@ -331,7 +331,10 @@ class InferencerActivity: AppCompatActivity() {
             Observer { resultImage ->
                 if (resultImage != null) {
                     //update UI with the result
-                    imageViewshow!!.setImageBitmap(resultImage.bitmapResult)
+                    val resizedBitmap = Bitmap.createScaledBitmap(
+                        resultImage.bitmapResult, 768, 1024, false
+                    )
+                    imageViewshow!!.setImageBitmap(resizedBitmap)
                     var logText: TextView = findViewById(R.id.log_view)  // textview in the pull-up list
                     logText.text = resultImage.executionLog
                 }
