@@ -1,6 +1,7 @@
 package com.example.collector
 
 import android.graphics.Bitmap
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -75,7 +76,7 @@ class InferencerActivity: AppCompatActivity() {
             chooseMdl.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                     //default to object detection
-                    detectObjectAndTrack(image)
+                    detectObjectAndTrack(image, resizedBitmap)
                 }
 
                 override fun onItemSelected(
@@ -94,7 +95,7 @@ class InferencerActivity: AppCompatActivity() {
                     doneInf = false
                     imageViewshow!!.setImageBitmap(resizedBitmap)
                     when (position) {
-                        0 -> detectObjectAndTrack(image)
+                        0 -> detectObjectAndTrack(image, resizedBitmap)
                         1 -> detectFaces(image)
                         2 -> detectFPose(image)
                         3 -> labelImage(image)
@@ -106,7 +107,7 @@ class InferencerActivity: AppCompatActivity() {
         }
     }
 
-    private fun detectObjectAndTrack(image : InputImage) {
+    private fun detectObjectAndTrack(image : InputImage, bmp : Bitmap) {
 //        // Live detection and tracking
 //        val options = ObjectDetectorOptions.Builder()
 //            .setDetectorMode(ObjectDetectorOptions.STREAM_MODE)
@@ -121,6 +122,9 @@ class InferencerActivity: AppCompatActivity() {
             .build()
 
         val objectDetector = ObjectDetection.getClient(options)
+
+        val labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
+
         var logText: TextView = findViewById(R.id.log_view)  // textview in the pull-up list
         var count = 0
         var ids = 0
@@ -128,6 +132,7 @@ class InferencerActivity: AppCompatActivity() {
 
         button_inf.setOnClickListener {
             if (!doneInf) {
+                var bBoxList  = ArrayList<Rect>()
                 doneInf = true
                 objectDetector.process(image)
                     .addOnSuccessListener { detectedObjects ->
@@ -139,31 +144,32 @@ class InferencerActivity: AppCompatActivity() {
                                     detectedObject
                                 )
                             )
-                            logText.append("ObjectId: $count Labels:")
-                            for (label in detectedObject.labels) {
-                                val text = label.text
-                                lab += text
-                                logText.append("$text, ")
-                            }
-                            logText.append("\n \n")
+                            bBoxList.add(detectedObject.boundingBox)
+                        }
+                        for (bBox in bBoxList) { // for each boundingbox, crop and inference with image labeler
+                            val croppedBmp : Bitmap = Bitmap.createBitmap(bmp, bBox.left, bBox.top,
+                                bBox.right - bBox.left, bBox.bottom - bBox.top)
+                            var croppedImage = InputImage.fromBitmap(croppedBmp, 0)
+                            labeler.process(croppedImage)
+                                .addOnSuccessListener { labels ->
+                                    // Task completed successfully
+                                    var counter = 0;
+                                    for (label in labels) {
+                                        counter += 1
+                                        if(counter <= 3) {
+                                            logText.append("Label${counter}: ${label.text},")
+                                        }
+                                    }
+                                    logText.append("\n") // newline for the next crop
+                                }
+                                .addOnFailureListener { e ->
+                                    // Task failed with an exception
+                                    Toast.makeText(this, "cannot inferrence", Toast.LENGTH_SHORT).show()
+                                }
                         }
                         textView_count.text = "Count: " + count.toString()
-                        logText.append("Number of Object: " + count.toString())
+                        logText.append("Number of Object: " + count.toString() + "\n") // this get printed the first
                     }
-//                .addOnSuccessListener(object : OnSuccessListener<List<DetectedObject>> {
-//                    override fun onSuccess(results: List<DetectedObject>) {
-//                        for (result in results) {
-//                            graphicOverlay?.add(ObjectGraphic(graphicOverlay!!, result))
-//                            count += 1
-//                            ids += if (result.trackingId != null) {
-//                                result.trackingId
-//                            } else {
-//                                100
-//                            }
-//                        }
-//                        textView_count.text = "Count: " + ids.toString() + count.toString()
-//                    }
-//                })
                     .addOnFailureListener { e ->
                         Toast.makeText(this, "cannot inferrence", Toast.LENGTH_SHORT).show()
                     }
