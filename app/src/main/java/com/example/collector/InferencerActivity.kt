@@ -1,5 +1,6 @@
 package com.example.collector
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.os.Bundle
@@ -47,7 +48,9 @@ class InferencerActivity: AppCompatActivity() {
         val models = arrayOf("Object Detection", "Face Detection", "Pose Detection", "Image Labeling", "Text Recognition", "customSeg")
         chooseMdl.adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, models)
 
-
+        val images = intent.getStringExtra(InboxActivity.USER_KEY)
+        val cur_id = intent.getStringExtra(InboxActivity.ROW_ID)
+        val cur_name = intent.getStringExtra(InboxActivity.ROW_NAME)
         val context = this
         val db = DataBaseHandler(context)
         val bmp = db.readDataImg()
@@ -104,6 +107,14 @@ class InferencerActivity: AppCompatActivity() {
                     }
                 }
             }
+        }
+
+        button_done.setOnClickListener {
+            val intent = Intent(this, ValidateImageActivity::class.java)
+            intent.putExtra(InboxActivity.USER_KEY, images)
+            intent.putExtra(InboxActivity.ROW_ID, cur_id)
+            intent.putExtra(InboxActivity.ROW_NAME, cur_name)
+            startActivity(intent)
         }
     }
 

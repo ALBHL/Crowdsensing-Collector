@@ -38,7 +38,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:adjustViewBounds="true"
-                    app:layout_constraintBottom_toTopOf="@+id/button_inf"
+                    app:layout_constraintBottom_toTopOf="@+id/hori_linear"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -61,21 +61,49 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
 
-                <Button
-                    android:id="@+id/button_inf"
-                    android:layout_width="0dp"
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/hori_linear"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:orientation="horizontal"
                     android:layout_marginStart="16dp"
                     android:layout_marginLeft="16dp"
                     android:layout_marginEnd="16dp"
                     android:layout_marginRight="16dp"
                     android:layout_marginBottom="85dp"
-                    android:background="@drawable/rounded_blue_button"
-                    android:text="Inference"
-                    android:textColor="#FFFFFF"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    app:layout_constraintStart_toStartOf="parent">
+
+                    <Button
+                        android:id="@+id/button_inf"
+                        android:layout_width="150dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rounded_blue_button"
+                        android:text="Inference"
+                        android:textColor="#FFFFFF"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <Button
+                        android:id="@+id/button_done"
+                        android:layout_width="150dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rounded_blue_button"
+                        android:text="Finish"
+                        android:textColor="#FFFFFF"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                </LinearLayout>
+
 
                 <TextView
                     android:id="@+id/textView_count"
@@ -87,9 +115,9 @@
                     android:textSize="18sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/button_inf"
-                    app:layout_constraintStart_toStartOf="@+id/button_inf"
-                    app:layout_constraintTop_toBottomOf="@id/button_inf" />
+                    app:layout_constraintEnd_toEndOf="@+id/hori_linear"
+                    app:layout_constraintStart_toStartOf="@+id/hori_linear"
+                    app:layout_constraintTop_toBottomOf="@id/hori_linear" />
 
 <!--            </ScrollView>-->
         </androidx.constraintlayout.widget.ConstraintLayout>
