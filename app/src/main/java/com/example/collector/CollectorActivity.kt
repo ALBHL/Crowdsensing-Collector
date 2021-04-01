@@ -38,8 +38,10 @@ class CollectorActivity : AppCompatActivity() {
             imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos)
             val img: ByteArray = bos.toByteArray()
 
-            var user = User("picture", 1, "https://9to5mac.com/wp-content/uploads/sites/6/2019/03/mac.jpg?quality=82&strip=all")
-            db.insertDataImg(user, img)
+            if (cur_id != null) {
+                db.updateRowImg(cur_id, img)
+                db.updateRow(cur_id, "ready to be validated")
+            }
 
             val intent = Intent(this, InferencerActivity::class.java)
             intent.putExtra(InboxActivity.USER_KEY, images)

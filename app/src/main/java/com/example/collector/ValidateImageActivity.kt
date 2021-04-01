@@ -69,7 +69,7 @@ class ValidateImageActivity : AppCompatActivity(), OnMyLocationButtonClickListen
         ButtonValidation.setOnClickListener {
             Toast.makeText(context,cur_id, Toast.LENGTH_SHORT).show()
             if (cur_id != null) {
-                db.updateRow(cur_id, "validated")
+                db.updateRow(cur_id, "ready to be validated")
             }
             val intent = Intent(this, SuccessValidateActivity::class.java)
             startActivity(intent)
