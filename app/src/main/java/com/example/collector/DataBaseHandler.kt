@@ -7,8 +7,10 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.icu.number.IntegerWidth
+import android.util.Log
 import android.util.Log.d
 import android.widget.Toast
+import com.google.mlkit.vision.demo.kotlin.textdetector.TextGraphic
 
 
 val DATABASE_NAME ="MyDB"
@@ -43,7 +45,7 @@ val createTableIn = "CREATE TABLE " + TABLEIN_NAME + " (" +
 
 val dropTableIn = "DROP TABLE IF EXISTS " + TABLEIN_NAME
 
-class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_NAME,null,9) {
+class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_NAME,null,10) {
     override fun onCreate(db: SQLiteDatabase?) {
         db?.execSQL(createTableIn)
         db?.execSQL(createTable)
@@ -118,15 +120,14 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
         return list
     }
 
-    fun readDataImg(): Bitmap? {
+    fun readDataImg(cur_id: String): Bitmap? {
         val db = this.readableDatabase
-        val query = "Select * from " + TABLEIN_NAME
+        val query = "Select * from " + TABLEIN_NAME + " where " + COL_ID + " = " + cur_id
+        Log.d("datebasexixi", query)
         val result = db.rawQuery(query,null)
         var retblob: ByteArray? = null
         if(result.moveToFirst()){
-            do {
-                retblob = result.getBlob(result.getColumnIndex(COL_IMAGE_BIT))
-            }while (result.moveToNext())
+            retblob = result.getBlob(result.getColumnIndex(COL_IMAGE_BIT))
         }
         val bmp = retblob?.size?.let { BitmapFactory.decodeByteArray(retblob, 0, it) }
         result.close()
@@ -151,6 +152,13 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
         val db = this.writableDatabase
         val cv = ContentValues()
         cv.put(COL_STAGE, stage)/// TODO: something wrong here
+        db.update(TABLEIN_NAME, cv,"$COL_ID=?", arrayOf(id))
+    }
+
+    fun updateRowImg(id: String, img: ByteArray) {
+        val db = this.writableDatabase
+        val cv = ContentValues()
+        cv.put(COL_IMAGE_BIT, img)
         db.update(TABLEIN_NAME, cv,"$COL_ID=?", arrayOf(id))
     }
 

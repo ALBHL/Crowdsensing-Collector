@@ -46,20 +46,21 @@ class OutboxActivity : AppCompatActivity() {
 
     companion object {
         val USER_KEY = "USER_KEY"
+        val USER_ID = "USER_ID"
     }
 
 
     private fun fetchUsers(data: MutableList<User>) {
         val adapter = GroupAdapter<ViewHolder>()
         for (i in 0 until data.size) {
-            if (data[i].cur_stage == "validated") {
+            if (data[i].cur_stage == "ready to be validated") {
                 adapter.add(UserItem(data[i]))
             }
         }
         adapter.setOnItemClickListener { item, view ->
             val userItem = item as UserItem
-            val intent = Intent(view.context, ShowImageActivity::class.java)
-            intent.putExtra(USER_KEY, userItem.user.imageurl)
+            val intent = Intent(view.context, ConfirmSendOutActivity::class.java)
+            intent.putExtra(USER_ID, userItem.user.id.toString())
             startActivity(intent)
         }
         recycleview_outbox.adapter = adapter

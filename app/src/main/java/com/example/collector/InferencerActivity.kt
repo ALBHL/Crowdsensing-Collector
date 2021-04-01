@@ -2,6 +2,7 @@ package com.example.collector
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -50,7 +51,8 @@ class InferencerActivity: AppCompatActivity() {
 
         val context = this
         val db = DataBaseHandler(context)
-        val bmp = db.readDataImg()
+        val cur_id = intent.getStringExtra("ROW_ID")
+        val bmp = cur_id?.let { db.readDataImg(it) }
 
         graphicOverlay = findViewById(R.id.graphic_overlay_inf)
         // Clear the overlay first
