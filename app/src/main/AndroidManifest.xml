@@ -35,9 +35,7 @@
             android:authorities="com.example.collector"
             android:exported="true"
             android:multiprocess="true"
-            android:grantUriPermissions="true"
-            android:readPermission="com.example.validator.READ.PERMISSION"
-            android:writePermission="com.example.validator.WRITE.PERMISSION">
+            android:grantUriPermissions="true">
         </provider>
 
         <meta-data

@@ -12,6 +12,8 @@ class User {
 //    var collect: String = ""
 //    var validate: String = ""
     var profileurl: String = ""
+    var model: String = ""
+    var item: String = ""
 
     constructor(name: String, age: Int, imageurl: String) {
         this.name = name
@@ -31,6 +33,8 @@ class User {
             "https://i.pinimg.com/564x/d5/be/82/d5be825883f116248f5cd3a2f58874b1.jpg")
         val ran = (0 until 8).random()
         this.profileurl = profiles[ran]
+        this.model = ""
+        this.item = ""
     }
 
     constructor() {

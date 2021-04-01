@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
+import android.util.Log.d
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -81,6 +82,7 @@ class InferencerActivity: AppCompatActivity() {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                     //default to object detection
                     detectObjectAndTrack(image, resizedBitmap)
+                    db.updateRowModel(cur_id, models[0])
                 }
 
                 override fun onItemSelected(
@@ -92,8 +94,8 @@ class InferencerActivity: AppCompatActivity() {
                     // reset view
                     graphicOverlay!!.clear()
                     // clear pop-up text
-                    var logText: TextView = findViewById(R.id.log_view)  // textview in the pull-up list
-                    logText.text = null
+//                    var logText: TextView = findViewById(R.id.log_view)  // textview in the pull-up list
+//                    logText.text = null
                     textView_count.text = "Count: 0"
                     // set doneInf to false
                     doneInf = false
@@ -106,11 +108,17 @@ class InferencerActivity: AppCompatActivity() {
                         4 -> recognizeText(image)
                         5 -> loadCustomModel(resizedBitmap)
                     }
+                    db.updateRowModel(cur_id, models[position])
                 }
             }
         }
 
         button_done.setOnClickListener {
+            var logText: TextView = findViewById(R.id.log_view)
+            d("hahahaha", "log tag is: " + logText.text.toString())
+            if (cur_id != null) {
+                db.updateRowItem(cur_id, logText.text.toString())
+            }
             val intent = Intent(this, ValidateImageActivity::class.java)
             intent.putExtra(InboxActivity.USER_KEY, images)
             intent.putExtra(InboxActivity.ROW_ID, cur_id)

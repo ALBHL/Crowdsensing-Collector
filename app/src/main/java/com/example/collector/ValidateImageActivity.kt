@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -24,6 +25,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.android.synthetic.main.activity_cofirm_send_out.*
 import kotlinx.android.synthetic.main.activity_validate_image.*
 
 
@@ -49,14 +51,23 @@ class ValidateImageActivity : AppCompatActivity(), OnMyLocationButtonClickListen
         val data = db.readData()
 
         textview_metadata.text = ""
-        textview_metadata.text = "Inbox\n"
+        textview_metadata.text = "METADATA\n"
         for (i in 0 until data.size) {
-            textview_metadata.append(data[i].id.toString() + " " + data[i].name + " " + data[i].age + data[i].imageurl +
-                    "STAGE: " + data[i].cur_stage + "\n")
+            if (data[i].id.toString() == cur_id) {
+                textview_metadata.append(data[i].id.toString() + " " + data[i].name + " MODEL IS: " + data[i].model + " ITEM IS: " + data[i].item + " " + data[i].age + data[i].imageurl +
+                        "STAGE: " + data[i].cur_stage + "\n")
+            }
         }
 
-        recyclerViewContents.layoutManager = LinearLayoutManager(this)
-        recyclerViewContents.adapter = images?.let { ValidateImageAdapter(it) }
+//        recyclerViewContents.layoutManager = LinearLayoutManager(this)
+//        recyclerViewContents.adapter = images?.let { ValidateImageAdapter(it) }
+
+        val bmp = cur_id?.let { db.readDataImg(it) }
+        imageView_validate.setImageBitmap(bmp)
+
+        val inference_ret = cur_id?.let{ db.readDataItem(it) }
+        txt_inference_validate.text = inference_ret
+
 
         buttonDisapprove.setOnClickListener {
             if (cur_id != null) {
