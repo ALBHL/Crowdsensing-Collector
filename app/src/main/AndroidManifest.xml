@@ -41,7 +41,4 @@
 
     </application>
 
-    <uses-permission android:name="com.example.validator.READ.PERMISSION"/>
-    <uses-permission android:name="com.example.validator.WRITE.PERMISSION"/>
-
 </manifest>
