@@ -54,7 +54,6 @@ class InferencerActivity: AppCompatActivity() {
         val cur_name = intent.getStringExtra(InboxActivity.ROW_NAME)
         val context = this
         val db = DataBaseHandler(context)
-        val cur_id = intent.getStringExtra("ROW_ID")
         val bmp = cur_id?.let { db.readDataImg(it) }
 
         graphicOverlay = findViewById(R.id.graphic_overlay_inf)
