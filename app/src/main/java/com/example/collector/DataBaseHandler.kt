@@ -6,15 +6,11 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.icu.number.IntegerWidth
 import android.util.Log
-import android.util.Log.d
 import android.widget.Toast
-import com.google.mlkit.vision.demo.kotlin.textdetector.TextGraphic
 
 
 val DATABASE_NAME ="MyDB"
-val TABLE_NAME="Users"
 val TABLEIN_NAME="Inbox"
 val COL_NAME = "name"
 val COL_AGE = "age"
@@ -23,16 +19,9 @@ val COL_URL = "imageurl"
 val COL_PROFILE = "profileimg"
 val COL_STAGE = "current_stage"  // true means can be sent to be collected
 val COL_IMAGE_BIT = "picturetaken"
-
-val createTable = "CREATE TABLE " + TABLE_NAME + " (" +
-        COL_ID +" INTEGER PRIMARY KEY AUTOINCREMENT," +
-        COL_NAME + " VARCHAR(256)," +
-        COL_STAGE + " VARCHAR(256)," +
-        COL_AGE + " INTEGER," +
-        COL_PROFILE + " VARCHAR(256)," +
-        COL_URL + " VARCHAR(256))"
-
-val dropTable = "DROP TABLE IF EXISTS " + TABLE_NAME
+val COL_MODEL = "inf_model"
+val COL_ITEM = "item_of_interest"
+val COL_COUNT = "item_count"
 
 val createTableIn = "CREATE TABLE " + TABLEIN_NAME + " (" +
         COL_ID +" INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -41,19 +30,20 @@ val createTableIn = "CREATE TABLE " + TABLEIN_NAME + " (" +
         COL_AGE + " INTEGER," +
         COL_PROFILE + " VARCHAR(256)," +
         COL_URL + " VARCHAR(256)," +
+        COL_MODEL + " VARCHAR(256)," +
+        COL_ITEM + " VARCHAR(256)," +
+        COL_COUNT + " INTEGER," +
         COL_IMAGE_BIT + " BLOB)"
 
 val dropTableIn = "DROP TABLE IF EXISTS " + TABLEIN_NAME
 
-class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_NAME,null,10) {
+class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_NAME,null,12) {
     override fun onCreate(db: SQLiteDatabase?) {
         db?.execSQL(createTableIn)
-        db?.execSQL(createTable)
     }
 
 
     override fun onUpgrade(db: SQLiteDatabase?,oldVersion: Int,newVersion: Int) {
-        db?.execSQL(dropTable)
         db?.execSQL(dropTableIn)
         onCreate(db)
     }
@@ -72,6 +62,8 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
         cv.put(COL_URL, user.imageurl)
         cv.put(COL_PROFILE, user.profileurl)
         cv.put(COL_STAGE,  user.cur_stage)
+        cv.put(COL_MODEL, user.model)
+        cv.put(COL_ITEM, user.item)
         val result = db.insert(TABLEIN_NAME,null,cv)
         if(result == -1.toLong())
             Toast.makeText(context,"Failed",Toast.LENGTH_SHORT).show()
@@ -111,6 +103,8 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
                 user.imageurl = result.getString(result.getColumnIndex(COL_URL))
                 user.cur_stage = result.getString(result.getColumnIndex(COL_STAGE))
                 user.profileurl = result.getString(result.getColumnIndex(COL_PROFILE))
+                user.model = result.getString(result.getColumnIndex(COL_MODEL))
+                user.item = result.getString(result.getColumnIndex(COL_ITEM))
                 list.add(user)
             }while (result.moveToNext())
         }
@@ -118,6 +112,19 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
         result.close()
         db.close()
         return list
+    }
+
+    fun readDataName(cur_id: String): String {
+        val db = this.readableDatabase
+        val query = "Select * from " + TABLEIN_NAME + " where " + COL_ID + " = " + cur_id
+        val result = db.rawQuery(query,null)
+        var name: String = ""
+        if(result.moveToFirst()){
+            name = result.getString(result.getColumnIndex(COL_NAME))
+        }
+        result.close()
+        db.close()
+        return name
     }
 
     fun readDataImg(cur_id: String): Bitmap? {
@@ -135,9 +142,21 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
         return bmp
     }
 
+    fun readDataItem(cur_id: String): String {
+        val db = this.readableDatabase
+        val query = "Select * from " + TABLEIN_NAME + " where " + COL_ID + " = " + cur_id
+        val result = db.rawQuery(query,null)
+        var item: String = ""
+        if(result.moveToFirst()){
+            item = result.getString(result.getColumnIndex(COL_ITEM))
+        }
+        result.close()
+        db.close()
+        return item
+    }
+
     fun updateData() {
         val db = this.writableDatabase
-        db?.execSQL(dropTable)
         db?.execSQL(dropTableIn)
         onCreate(db)
     }
@@ -162,4 +181,24 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
         db.update(TABLEIN_NAME, cv,"$COL_ID=?", arrayOf(id))
     }
 
+    fun updateRowModel(id: String, inf_model: String) {
+        val db = this.writableDatabase
+        val cv = ContentValues()
+        cv.put(COL_MODEL, inf_model)
+        db.update(TABLEIN_NAME, cv,"$COL_ID=?", arrayOf(id))
+    }
+
+    fun updateRowCount(id: String, item_count: Int) {
+        val db = this.writableDatabase
+        val cv = ContentValues()
+        cv.put(COL_COUNT, item_count)
+        db.update(TABLEIN_NAME, cv,"$COL_ID=?", arrayOf(id))
+    }
+
+    fun updateRowItem(id: String, item: String) {
+        val db = this.writableDatabase
+        val cv = ContentValues()
+        cv.put(COL_ITEM, item)
+        db.update(TABLEIN_NAME, cv,"$COL_ID=?", arrayOf(id))
+    }
 }

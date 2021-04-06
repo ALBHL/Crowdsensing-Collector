@@ -16,12 +16,16 @@ class ConfirmSendOutActivity : AppCompatActivity() {
 
         val context = this
         val db = DataBaseHandler(context)
-        Log.d("hehehe", "NULL nooo")
-        if (cur_id != null) {
-            Log.d("hehehe", cur_id)
-        }
+
+        val name = cur_id?.let{ db.readDataName(it) }
+        txt_out_title.text = name
+
         val bmp = cur_id?.let { db.readDataImg(it) }
         imageView_out.setImageBitmap(bmp)
+
+
+        val inference_ret = cur_id?.let{ db.readDataItem(it) }
+        txt_inference_rtval.text = inference_ret
 
         button_back_to_outbox.setOnClickListener{
             val intent = Intent(this, OutboxActivity::class.java)

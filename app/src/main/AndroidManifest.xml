@@ -3,6 +3,7 @@
     package="com.example.collector"
     android:installLocation="auto">
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -34,11 +35,12 @@
             android:authorities="com.example.collector"
             android:exported="true"
             android:multiprocess="true"
-            android:grantUriPermissions="true"
-            android:readPermission="com.example.validator.READ.PERMISSION"
-            android:writePermission="com.example.validator.WRITE.PERMISSION">
+            android:grantUriPermissions="true">
         </provider>
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDClYeykC5taka_YN4HcGvveEUMKuPMeyw" />
     </application>
 
 </manifest>

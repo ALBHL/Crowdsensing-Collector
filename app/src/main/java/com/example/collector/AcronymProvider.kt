@@ -21,6 +21,9 @@ class AcronymProvider : ContentProvider() {
         val COL_PROFILE = "profileimg"
         val COL_STAGE = "current_stage"
         val COL_IMAGE_BIT = "picturetaken"
+        val COL_MODEL = "inf_model"
+        val COL_ITEM = "item_of_interest"
+        val COL_COUNT = "item_count"
     }
     lateinit var db : SQLiteDatabase
 

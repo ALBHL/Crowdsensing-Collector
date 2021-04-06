@@ -18,8 +18,9 @@ class CollectorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_collector)
 
+        val images = intent.getStringExtra(InboxActivity.USER_KEY)
         val cur_id = intent.getStringExtra(InboxActivity.ROW_ID)
-
+        val cur_name = intent.getStringExtra(InboxActivity.ROW_NAME)
         val context = this
         val db = DataBaseHandler(context)
 
@@ -43,7 +44,9 @@ class CollectorActivity : AppCompatActivity() {
             }
 
             val intent = Intent(this, InferencerActivity::class.java)
-            intent.putExtra("ROW_ID", cur_id)
+            intent.putExtra(InboxActivity.USER_KEY, images)
+            intent.putExtra(InboxActivity.ROW_ID, cur_id)
+            intent.putExtra(InboxActivity.ROW_NAME, cur_name)
             startActivity(intent)
         }
     }
