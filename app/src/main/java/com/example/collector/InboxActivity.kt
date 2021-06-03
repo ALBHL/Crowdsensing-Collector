@@ -9,6 +9,10 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 //import com.google.firebase.auth.FirebaseAuth
 //import com.google.firebase.ktx.Firebase
 import com.xwray.groupie.GroupAdapter
@@ -41,6 +45,25 @@ class InboxActivity : AppCompatActivity() {
         }
 
         button_refresh_inbox.setOnClickListener{
+            Log.d("NewMessage", "heyyyy")
+            val ref = FirebaseDatabase.getInstance().getReference("/users")
+            ref.get().addOnSuccessListener {
+                Log.i("firebase", "Got value ${it.value}")
+            }.addOnFailureListener{
+                Log.e("firebase", "Error getting data", it)
+            }
+//            ref.addListenerForSingleValueEvent(object: ValueEventListener {
+//                override fun onDataChange(p0: DataSnapshot) {
+//                    p0.children.forEach {
+//                        Log.d("NewMessage", it.toString())
+//                    }
+//                }
+//
+//                override fun onCancelled(p0: DatabaseError) {
+//
+//                }
+//            })
+
             val intent = Intent(this, InboxActivity::class.java)
             startActivity(intent)
         }

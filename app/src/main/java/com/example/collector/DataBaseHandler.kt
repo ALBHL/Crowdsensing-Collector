@@ -103,8 +103,8 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
                 user.imageurl = result.getString(result.getColumnIndex(COL_URL))
                 user.cur_stage = result.getString(result.getColumnIndex(COL_STAGE))
                 user.profileurl = result.getString(result.getColumnIndex(COL_PROFILE))
-                user.model = result.getString(result.getColumnIndex(COL_MODEL))
-                user.item = result.getString(result.getColumnIndex(COL_ITEM))
+//                user.model = result.getString(result.getColumnIndex(COL_MODEL))
+//                user.item = result.getString(result.getColumnIndex(COL_ITEM))
                 list.add(user)
             }while (result.moveToNext())
         }
