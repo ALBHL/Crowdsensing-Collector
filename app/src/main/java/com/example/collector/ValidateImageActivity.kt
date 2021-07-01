@@ -54,7 +54,7 @@ class ValidateImageActivity : AppCompatActivity(), OnMyLocationButtonClickListen
         textview_metadata.text = "METADATA\n"
         for (i in 0 until data.size) {
             if (data[i].id.toString() == cur_id) {
-                textview_metadata.append(data[i].id.toString() + " " + data[i].name + " MODEL IS: " + data[i].model + " ITEM IS: " + data[i].item + " " + data[i].age + data[i].imageurl +
+                textview_metadata.append(data[i].id.toString() + " " + data[i].task_name + " MODEL IS: " + data[i].model + " ITEM IS: " + data[i].item + " " + data[i].age + data[i].imageurl +
                         "STAGE: " + data[i].cur_stage + "\n")
             }
         }

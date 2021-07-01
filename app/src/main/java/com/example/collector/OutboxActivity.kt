@@ -91,8 +91,8 @@ class OutboxActivity : AppCompatActivity() {
 class UserItem(val user: User): Item<ViewHolder>() {
     override fun bind(viewHolder: ViewHolder, position: Int) {
         // will be called in the list of user object
-        viewHolder.itemView.outbox_query_title.text = user.name
-//        Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.imageview_new_message)
+        viewHolder.itemView.outbox_query_title.text = user.task_name
+        viewHolder.itemView.outbox_query_description.text = user.task_description
         val imageURL = user.profileurl
         if (imageURL != "") {
             Picasso.get().load(imageURL).into(viewHolder.itemView.imageViewprofile)

@@ -57,7 +57,7 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
     fun insertData(user : User){  // add row into the inbox rows
         val db = this.writableDatabase
         val cv = ContentValues()
-        cv.put(COL_NAME, user.name)
+        cv.put(COL_NAME, user.task_name)
         cv.put(COL_AGE, user.age)
         cv.put(COL_URL, user.imageurl)
         cv.put(COL_PROFILE, user.profileurl)
@@ -74,7 +74,7 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
     fun insertDataImg(user: User, img: ByteArray){  // add row into the inbox rows
         val db = this.writableDatabase
         val cv = ContentValues()
-        cv.put(COL_NAME, user.name)
+        cv.put(COL_NAME, user.task_name)
         cv.put(COL_AGE, user.age)
         cv.put(COL_URL, user.imageurl)
         cv.put(COL_PROFILE, user.profileurl)
@@ -98,7 +98,7 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
             do {
                 val user = User()
                 user.id = result.getString(result.getColumnIndex(COL_ID)).toInt()
-                user.name = result.getString(result.getColumnIndex(COL_NAME))
+                user.task_name = result.getString(result.getColumnIndex(COL_NAME))
                 user.age = result.getString(result.getColumnIndex(COL_AGE)).toInt()
                 user.imageurl = result.getString(result.getColumnIndex(COL_URL))
                 user.cur_stage = result.getString(result.getColumnIndex(COL_STAGE))

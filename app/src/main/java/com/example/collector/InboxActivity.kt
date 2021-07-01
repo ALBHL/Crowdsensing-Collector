@@ -18,6 +18,7 @@ import com.google.firebase.database.ValueEventListener
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
 import kotlinx.android.synthetic.main.activity_inbox.*
+import kotlinx.android.synthetic.main.activity_setdata.*
 
 class InboxActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +30,7 @@ class InboxActivity : AppCompatActivity() {
         //TODO - login
 //        verifyUserIsLoggedIn()
 
-        button_inbox.setOnClickListener{
+        button_inbox.setOnClickListener {
             val intent = Intent(this, SetDataActivity::class.java)
             startActivity(intent)
         }
@@ -39,41 +40,66 @@ class InboxActivity : AppCompatActivity() {
 //            startActivity(intent)
 //        }
 
-        button_takepic.setOnClickListener{
+        button_takepic.setOnClickListener {
             val intent = Intent(this, CollectorActivity::class.java)
             startActivity(intent)
         }
 
-        button_refresh_inbox.setOnClickListener{
+        button_refresh_inbox.setOnClickListener {
             Log.d("NewMessage", "heyyyy")
             val ref = FirebaseDatabase.getInstance().getReference("/users")
             ref.get().addOnSuccessListener {
                 Log.i("firebase", "Got value ${it.value}")
-            }.addOnFailureListener{
+            }.addOnFailureListener {
                 Log.e("firebase", "Error getting data", it)
             }
-//            ref.addListenerForSingleValueEvent(object: ValueEventListener {
-//                override fun onDataChange(p0: DataSnapshot) {
-//                    p0.children.forEach {
-//                        Log.d("NewMessage", it.toString())
-//                    }
-//                }
-//
-//                override fun onCancelled(p0: DatabaseError) {
-//
-//                }
-//            })
+            ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                val db = DataBaseHandler(this@InboxActivity)
+                val data = db.readData()
+                override fun onDataChange(p0: DataSnapshot) {
+                    if (p0.exists()) {
+                        val adapter = GroupAdapter<ViewHolder>()
+                        var tasks = ArrayList<Task>()
+                        p0.children.forEach {
+                            Log.d("NewMessage", it.toString())
+                            val creatorModel = it.getValue(CreatorModel::class.java)
+                            it.child("tasks").children.forEach {
+                                it.getValue(Task::class.java)?.let { it1 -> tasks.add(it1) }
+                            }
+                            if (creatorModel != null && tasks != null) {
+                                for (i in 0 until tasks.size) {
+                                    if (tasks[i].cur_stage == "to collect") {
+                                        var profileurl: String = creatorModel.profileurl
+                                        var user = User(
+                                            tasks[i].task_name,
+                                            editTextAge.text.toString().toInt(),
+                                            profileurl,
+                                            tasks[i].task_description,
+                                            tasks[i].range_radius,
+                                            tasks[i].range_angle,
+                                            tasks[i].latitude,
+                                            tasks[i].longitude
+                                        )
+                                        adapter.add(UserItem(user))
+                                        db.insertData(user)
+                                    }
+                                }
+                            }
+                        }
 
+                        recycleview_inbox.adapter = adapter
+                    }
+                }
+
+                override fun onCancelled(p0: DatabaseError) {
+
+                }
+            })
             val intent = Intent(this, InboxActivity::class.java)
             startActivity(intent)
         }
 
 
-        val context = this
-        val db = DataBaseHandler(context)
-        val data = db.readData()
-
-        fetchUsers(data)
 
     }
 
@@ -95,7 +121,7 @@ class InboxActivity : AppCompatActivity() {
             val intent = Intent(view.context, CollectorActivity::class.java)
             intent.putExtra(USER_KEY, userItem.user.imageurl)
             intent.putExtra(ROW_ID, userItem.user.id.toString())
-            intent.putExtra(ROW_NAME, userItem.user.name)
+            intent.putExtra(ROW_NAME, userItem.user.task_name)
             startActivity(intent)
         }
         recycleview_inbox.adapter = adapter
