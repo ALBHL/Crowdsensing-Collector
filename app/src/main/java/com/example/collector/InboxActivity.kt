@@ -8,6 +8,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -46,6 +47,7 @@ class InboxActivity : AppCompatActivity() {
         }
 
         button_refresh_inbox.setOnClickListener {
+            recycleview_inbox.setVisibility(View.GONE)
             Log.d("NewMessage", "heyyyy")
             val ref = FirebaseDatabase.getInstance().getReference("/users")
             ref.get().addOnSuccessListener {
@@ -55,13 +57,12 @@ class InboxActivity : AppCompatActivity() {
             }
             ref.addListenerForSingleValueEvent(object : ValueEventListener {
                 val db = DataBaseHandler(this@InboxActivity)
-                val data = db.readData()
                 override fun onDataChange(p0: DataSnapshot) {
+                    db.updateData()
                     if (p0.exists()) {
                         val adapter = GroupAdapter<ViewHolder>()
                         var tasks = ArrayList<Task>()
                         p0.children.forEach {
-                            Log.d("NewMessage", it.toString())
                             val creatorModel = it.getValue(CreatorModel::class.java)
                             it.child("tasks").children.forEach {
                                 it.getValue(Task::class.java)?.let { it1 -> tasks.add(it1) }
@@ -69,11 +70,11 @@ class InboxActivity : AppCompatActivity() {
                             if (creatorModel != null && tasks != null) {
                                 for (i in 0 until tasks.size) {
                                     if (tasks[i].cur_stage == "to collect") {
-                                        var profileurl: String = creatorModel.profileurl
                                         var user = User(
+                                            tasks[i].task_id,
                                             tasks[i].task_name,
-                                            editTextAge.text.toString().toInt(),
-                                            profileurl,
+                                            1,
+                                            creatorModel.profileurl,
                                             tasks[i].task_description,
                                             tasks[i].range_radius,
                                             tasks[i].range_angle,
@@ -86,7 +87,17 @@ class InboxActivity : AppCompatActivity() {
                                 }
                             }
                         }
-
+                        adapter.setOnItemClickListener { item, view ->
+                            val userItem = item as UserItem
+                            val intent = Intent(view.context, CollectorActivity::class.java)
+                            intent.putExtra(USER_KEY, userItem.user.imageurl)
+                            intent.putExtra(ROW_ID, userItem.user.task_id)
+                            intent.putExtra(ROW_NAME, userItem.user.task_name)
+                            val locationData = listOf(userItem.user.latitude, userItem.user.longitude, userItem.user.range_radius, userItem.user.range_angle)
+                            intent.putExtra(USER_LOCATION, locationData.joinToString(separator = ";"))
+                            startActivity(intent)
+                        }
+                        recycleview_inbox.setVisibility(View.VISIBLE)
                         recycleview_inbox.adapter = adapter
                     }
                 }
@@ -95,8 +106,6 @@ class InboxActivity : AppCompatActivity() {
 
                 }
             })
-            val intent = Intent(this, InboxActivity::class.java)
-            startActivity(intent)
         }
 
 
@@ -107,6 +116,7 @@ class InboxActivity : AppCompatActivity() {
         val USER_KEY = "USER_KEY"
         val ROW_ID = "ROW_ID"
         val ROW_NAME = "ROW_NAME"
+        val USER_LOCATION = "USER_LOCATION"
     }
 
     private fun fetchUsers(data: MutableList<User>) {

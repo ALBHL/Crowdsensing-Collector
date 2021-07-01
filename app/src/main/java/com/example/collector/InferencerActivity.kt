@@ -51,11 +51,13 @@ class InferencerActivity: AppCompatActivity() {
         chooseMdl.adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, models)
 
         val images = intent.getStringExtra(InboxActivity.USER_KEY)
-        val cur_id = intent.getStringExtra(InboxActivity.ROW_ID)
+        val task_id = intent.getStringExtra(InboxActivity.ROW_ID)
         val cur_name = intent.getStringExtra(InboxActivity.ROW_NAME)
+        val location_data = intent.getStringExtra(InboxActivity.USER_LOCATION)
+        
         val context = this
         val db = DataBaseHandler(context)
-        val bmp = cur_id?.let { db.readDataImg(it) }
+        val bmp = task_id?.let { db.readDataImgByTaskId(it) }
 
         graphicOverlay = findViewById(R.id.graphic_overlay_inf)
         // Clear the overlay first
@@ -82,7 +84,7 @@ class InferencerActivity: AppCompatActivity() {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                     //default to object detection
                     detectObjectAndTrack(image, resizedBitmap)
-                    db.updateRowModel(cur_id, models[0])
+                    db.updateRowModelByTaskId(task_id, models[0])
                 }
 
                 override fun onItemSelected(
@@ -108,7 +110,7 @@ class InferencerActivity: AppCompatActivity() {
                         4 -> recognizeText(image)
                         5 -> loadCustomModel(resizedBitmap)
                     }
-                    db.updateRowModel(cur_id, models[position])
+                    db.updateRowModelByTaskId(task_id, models[position])
                 }
             }
         }
@@ -116,13 +118,14 @@ class InferencerActivity: AppCompatActivity() {
         button_done.setOnClickListener {
             var logText: TextView = findViewById(R.id.log_view)
             d("hahahaha", "log tag is: " + logText.text.toString())
-            if (cur_id != null) {
-                db.updateRowItem(cur_id, logText.text.toString())
+            if (task_id != null) {
+                db.updateRowItemByTaskId(task_id, logText.text.toString())
             }
             val intent = Intent(this, ValidateImageActivity::class.java)
             intent.putExtra(InboxActivity.USER_KEY, images)
-            intent.putExtra(InboxActivity.ROW_ID, cur_id)
+            intent.putExtra(InboxActivity.ROW_ID, task_id)
             intent.putExtra(InboxActivity.ROW_NAME, cur_name)
+            intent.putExtra(InboxActivity.USER_LOCATION, location_data)
             startActivity(intent)
         }
     }

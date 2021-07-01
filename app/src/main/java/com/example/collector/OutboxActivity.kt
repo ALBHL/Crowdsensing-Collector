@@ -93,7 +93,7 @@ class UserItem(val user: User): Item<ViewHolder>() {
         // will be called in the list of user object
         viewHolder.itemView.outbox_query_title.text = user.task_name
         viewHolder.itemView.outbox_query_description.text = user.task_description
-        val imageURL = user.profileurl
+        val imageURL = user.imageurl
         if (imageURL != "") {
             Picasso.get().load(imageURL).into(viewHolder.itemView.imageViewprofile)
         }

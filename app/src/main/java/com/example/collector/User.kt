@@ -2,6 +2,7 @@ package com.example.collector
 
 class User {
     var id: Int = 0
+    var task_id: String = ""
     var task_name: String = ""
     var age: Int = 0
     var imageurl: String = ""
@@ -24,6 +25,7 @@ class User {
     var longitude: String = ""
 
     constructor(
+        task_id: String,
         task_name: String,
         age: Int,
         imageurl: String,
@@ -33,6 +35,7 @@ class User {
         latitude: String,
         longitude: String
     ) {
+        this.task_id = task_id
         this.task_name = task_name
         this.age = age
         this.imageurl = imageurl

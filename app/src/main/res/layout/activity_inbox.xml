@@ -10,9 +10,8 @@
         android:id="@+id/recycleview_inbox"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="32dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/button_refresh_inbox"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -35,13 +34,13 @@
         android:id="@+id/button_inbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="168dp"
-        android:layout_marginRight="168dp"
+        android:layout_marginEnd="240dp"
+        android:layout_marginRight="240dp"
         android:layout_marginBottom="4dp"
         android:text="Button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recycleview_inbox" />
+        app:layout_constraintTop_toBottomOf="@+id/button_refresh_inbox"/>
 
     <Button
         android:id="@+id/button_takepic"
@@ -53,7 +52,7 @@
         android:text="PIC"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recycleview_inbox" />
+        app:layout_constraintTop_toBottomOf="@+id/button_refresh_inbox" />
 
     <ImageButton
         android:id="@+id/deleteBox"
@@ -62,7 +61,7 @@
         android:layout_marginEnd="12dp"
         android:layout_marginRight="12dp"
         android:layout_marginBottom="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_refresh_inbox"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_menu_delete" />
 

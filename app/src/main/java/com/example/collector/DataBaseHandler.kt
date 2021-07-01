@@ -15,6 +15,7 @@ val TABLEIN_NAME="Inbox"
 val COL_NAME = "name"
 val COL_AGE = "age"
 val COL_ID = "id"
+val COL_TASK_ID = "task_id"
 val COL_URL = "imageurl"
 val COL_PROFILE = "profileimg"
 val COL_STAGE = "current_stage"  // true means can be sent to be collected
@@ -25,6 +26,7 @@ val COL_COUNT = "item_count"
 
 val createTableIn = "CREATE TABLE " + TABLEIN_NAME + " (" +
         COL_ID +" INTEGER PRIMARY KEY AUTOINCREMENT," +
+        COL_TASK_ID + " VARCHAR(256)," +
         COL_NAME + " VARCHAR(256)," +
         COL_STAGE + " VARCHAR(256)," +
         COL_AGE + " INTEGER," +
@@ -57,6 +59,7 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
     fun insertData(user : User){  // add row into the inbox rows
         val db = this.writableDatabase
         val cv = ContentValues()
+        cv.put(COL_TASK_ID, user.task_id)
         cv.put(COL_NAME, user.task_name)
         cv.put(COL_AGE, user.age)
         cv.put(COL_URL, user.imageurl)
@@ -98,6 +101,7 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
             do {
                 val user = User()
                 user.id = result.getString(result.getColumnIndex(COL_ID)).toInt()
+                user.task_id = result.getString(result.getColumnIndex(COL_TASK_ID))
                 user.task_name = result.getString(result.getColumnIndex(COL_NAME))
                 user.age = result.getString(result.getColumnIndex(COL_AGE)).toInt()
                 user.imageurl = result.getString(result.getColumnIndex(COL_URL))
@@ -127,6 +131,21 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
         return name
     }
 
+    fun readDataImgByTaskId(task_id: String): Bitmap? {
+        val db = this.readableDatabase
+        val query = "Select * from " + TABLEIN_NAME + " where " + COL_TASK_ID + " = \"" + task_id + "\""
+        Log.d("datebasexixi", query)
+        val result = db.rawQuery(query,null)
+        var retblob: ByteArray? = null
+        if(result.moveToFirst()){
+            retblob = result.getBlob(result.getColumnIndex(COL_IMAGE_BIT))
+        }
+        val bmp = retblob?.size?.let { BitmapFactory.decodeByteArray(retblob, 0, it) }
+        result.close()
+        db.close()
+        return bmp
+    }
+
     fun readDataImg(cur_id: String): Bitmap? {
         val db = this.readableDatabase
         val query = "Select * from " + TABLEIN_NAME + " where " + COL_ID + " = " + cur_id
@@ -140,6 +159,19 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
         result.close()
         db.close()
         return bmp
+    }
+
+    fun readDataItemByTaskId(task_id: String): String {
+        val db = this.readableDatabase
+        val query = "Select * from $TABLEIN_NAME where $COL_TASK_ID = \"$task_id\""
+        val result = db.rawQuery(query,null)
+        var item: String = ""
+        if(result.moveToFirst()){
+            item = result.getString(result.getColumnIndex(COL_ITEM))
+        }
+        result.close()
+        db.close()
+        return item
     }
 
     fun readDataItem(cur_id: String): String {
@@ -174,11 +206,32 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
         db.update(TABLEIN_NAME, cv,"$COL_ID=?", arrayOf(id))
     }
 
+    fun updateRowByTaskId(task_id: String, stage: String) {
+        val db = this.writableDatabase
+        val cv = ContentValues()
+        cv.put(COL_STAGE, stage)/// TODO: something wrong here
+        db.update(TABLEIN_NAME, cv,"$COL_TASK_ID=?", arrayOf(task_id))
+    }
+
     fun updateRowImg(id: String, img: ByteArray) {
         val db = this.writableDatabase
         val cv = ContentValues()
         cv.put(COL_IMAGE_BIT, img)
         db.update(TABLEIN_NAME, cv,"$COL_ID=?", arrayOf(id))
+    }
+
+    fun updateRowImgByTaskId(task_id: String, img: ByteArray) {
+        val db = this.writableDatabase
+        val cv = ContentValues()
+        cv.put(COL_IMAGE_BIT, img)
+        db.update(TABLEIN_NAME, cv,"$COL_TASK_ID=?", arrayOf(task_id))
+    }
+
+    fun updateRowModelByTaskId(task_id: String, inf_model: String) {
+        val db = this.writableDatabase
+        val cv = ContentValues()
+        cv.put(COL_MODEL, inf_model)
+        db.update(TABLEIN_NAME, cv,"$COL_TASK_ID=?", arrayOf(task_id))
     }
 
     fun updateRowModel(id: String, inf_model: String) {
@@ -200,5 +253,12 @@ class DataBaseHandler(var context: Context) : SQLiteOpenHelper(context,DATABASE_
         val cv = ContentValues()
         cv.put(COL_ITEM, item)
         db.update(TABLEIN_NAME, cv,"$COL_ID=?", arrayOf(id))
+    }
+
+    fun updateRowItemByTaskId(task_id: String, item: String) {
+        val db = this.writableDatabase
+        val cv = ContentValues()
+        cv.put(COL_ITEM, item)
+        db.update(TABLEIN_NAME, cv,"$COL_TASK_ID=?", arrayOf(task_id))
     }
 }
